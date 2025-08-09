@@ -8,7 +8,7 @@ export const FX = {
   glitch(ctx:FXContext, target: any, amt=2, dur=0.6) {
     const f = new GlitchFilter({ slices: 5, fillMode: 3, offset: amt })
     target.filters = [f]
-    gsap.to(f, { offset: 0, duration: dur, ease: 'power1.out', onComplete: ()=>{ target.filters = null } })
+    gsap.to(f, { offset: 0, duration: dur, ease: 'power1.out', onComplete: ()=>{ (target as any).filters = null } })
   },
   shake(_ctx:FXContext, target:any, intensity=6, dur=0.3) {
     const tl = gsap.timeline()
@@ -36,7 +36,7 @@ export const FX = {
   highlightGlow(_ctx:FXContext, target:any, strength=1.4, dur=0.8) {
     const f = new AdvancedBloomFilter({ threshold: 0.6, bloomScale: strength })
     target.filters = [f]
-    gsap.to(f, { bloomScale: 0.01, duration: dur, ease: 'power2.out', onComplete: ()=>{ target.filters = null } })
+    gsap.to(f, { bloomScale: 0.01, duration: dur, ease: 'power2.out', onComplete: ()=>{ (target as any).filters = null } })
   },
   countUp(_ctx:FXContext, target: PixiText, from=0, to=80, dur=1.2) {
     const obj = { v: from }
