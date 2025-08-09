@@ -1,15 +1,90 @@
 <!doctype html>
 <html lang="th">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Jackboard Auto</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <title>Auto News Clip Builder</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans Thai', sans-serif; margin: 0; background: #0b0f14; color: #e6edf3; }
+      header { padding: 16px 20px; background: #111924; border-bottom: 1px solid #1b2636; position: sticky; top:0; z-index: 10; }
+      header h1 { margin: 0; font-size: 18px; }
+      main { display: grid; grid-template-columns: 360px 1fr; gap: 16px; padding: 16px; }
+      .panel { background: #0f1622; border: 1px solid #1b2636; border-radius: 10px; padding: 14px; }
+      .panel h2 { font-size: 14px; margin: 0 0 10px; color: #9fb5d1; }
+      label { display: block; margin: 10px 0 4px; font-size: 12px; color: #93a5bd; }
+      input, select, textarea { width: 100%; box-sizing: border-box; background: #0b1320; color: #e6edf3; border: 1px solid #1b2636; border-radius: 8px; padding: 10px; font-size: 14px; }
+      textarea { min-height: 100px; }
+      button { background: #1870f4; border: 0; color: white; border-radius: 8px; padding: 10px 12px; margin-right: 8px; cursor: pointer; font-weight: 600; }
+      button.secondary { background: #172334; color: #cfe0ff; border: 1px solid #24354f; }
+      button:disabled { opacity: 0.6; cursor: not-allowed; }
+      .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .log { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; background: #0b1320; border: 1px solid #142238; border-radius: 8px; padding: 10px; height: 140px; overflow: auto; }
+      .credits { font-size: 12px; color: #9db0cc; }
+      .canvasWrap { position: relative; background: #0b1320; border: 1px solid #142238; border-radius: 10px; overflow: hidden; min-height: 420px; display:flex; align-items:center; justify-content:center; }
+      .downloads { display:flex; gap:10px; margin-top: 10px; }
+      .badges span { background:#13213a; color:#cfe0ff; border:1px solid #203255; border-radius:999px; padding:4px 8px; font-size:12px; margin-right:6px; }
+      footer { padding: 12px 16px; color:#8aa2c2; font-size:12px; border-top: 1px solid #1b2636; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <header>
+      <h1>Jacky Storyboard — Auto Clip Builder</h1>
+    </header>
+    <main>
+      <section class="panel" id="controls">
+        <h2>ตั้งค่า</h2>
+        <label>หัวข้อข่าว/พรอมต์</label>
+        <input id="topic" placeholder="เช่น ข่าว BTC วันนี้" value="ข่าว BTC วันนี้" />
+        <div class="row">
+          <div style="flex:1">
+            <label>ความยาวคลิป (วินาที)</label>
+            <input id="duration" type="number" min="15" max="120" step="1" value="45" />
+          </div>
+          <div style="flex:1">
+            <label>ภาษา</label>
+            <select id="lang">
+              <option value="th" selected>ไทย</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button id="btnFetch">ดึงข่าว</button>
+          <button id="btnScript" class="secondary">สร้างสคริปต์</button>
+          <button id="btnRender" class="secondary">เรนเดอร์คลิป</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button id="btnStartAudio">เริ่มระบบเสียง</button>
+          <button id="btnSpeak" class="secondary">พากย์สคริปต์</button>
+          <button id="btnBG" class="secondary">สุ่มพื้นหลัง</button>
+        </div>
+        <label style="margin-top:12px">สคริปต์</label>
+        <textarea id="scriptBox" placeholder="สคริปต์จะถูกสร้างอัตโนมัติ"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button id="btnRecord">เริ่มอัด (WebM)</button>
+          <button id="btnStop" disabled>หยุดอัด</button>
+        </div>
+        <div class="downloads">
+          <a id="dlWebm" download="clip.webm"></a>
+          <a id="dlSrt" download="subtitles.srt"></a>
+        </div>
+        <div class="badges" style="margin-top:8px">
+          <span>PixiJS</span><span>GSAP</span><span>MediaRecorder</span><span>Web Speech</span><span>Web Audio</span>
+        </div>
+        <h2 style="margin-top:16px">Log</h2>
+        <div class="log" id="log"></div>
+      </section>
+      <section class="panel">
+        <h2>พรีวิววิดีโอ</h2>
+        <div class="canvasWrap">
+          <canvas id="stage" width="1280" height="720"></canvas>
+        </div>
+        <div class="credits" id="credits" style="margin-top:10px"></div>
+      </section>
+    </main>
+    <footer>
+      สงวนสิทธิ์ © 2025 — แสดงเครดิต/แหล่งข้อมูลตามสัญญาอนุญาต — บันทึกลง IndexedDB อัตโนมัติ — เปิดผ่านเซิร์ฟเวอร์ท้องถิ่น
+    </footer>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

@@ -1,49 +1,13 @@
-# Borwan Money Games
+# Jacky Storyboard — Auto Clip Builder
 
-ระบบสร้างคลิปอัตโนมัติสำหรับเกมส์การเงิน
+Browser-only app to fetch news, generate Thai script + shotlist, render kinetic-typography video with PixiJS + GSAP, speak via Web Speech, add beeps, approximate lip-sync, record WebM, and export SRT.
 
-## 🌐 เว็บไซต์
+How to run
+- Open `index.html` with a local web server (due to module imports). If you have Python:
+  - Python 3: `python3 -m http.server 5173` and open http://localhost:5173/
+- Or use any static server.
 
-เว็บไซต์หลัก: https://cgunxl.github.io/loupuaroy/
-
-## 🚀 การพัฒนา
-
-```bash
-# ติดตั้ง dependencies
-npm install
-
-# เริ่มเซิร์ฟเวอร์พัฒนา
-npm run dev
-
-# เปิด http://localhost:5173
-```
-
-## 📦 การ Build
-
-```bash
-# Build สำหรับ production
-npm run build
-
-# ดูตัวอย่าง production build
-npm run preview
-```
-
-## 🎯 ฟีเจอร์
-
-- 🎬 สร้างคลิปอัตโนมัติ
-- 🎨 เอฟเฟกต์สวยงาม
-- ⚡ เร็วและง่าย
-- 📱 รองรับมือถือ
-
-## 🛠️ เทคโนโลยี
-
-- React 18
-- TypeScript
-- Vite
-- Pixi.js
-- GSAP
-- Zustand
-
-## 📄 License
-
-MIT License
+Notes
+- Some RSS sources require CORS. The app falls back to `api.allorigins.win`.
+- Web Speech audio cannot be routed to MediaRecorder directly; the recorded file includes our synthetic audio envelope and beeps. Subtitles (SRT) are exported for full narration.
+- Click “เริ่มระบบเสียง” once to unlock AudioContext on user gesture.
