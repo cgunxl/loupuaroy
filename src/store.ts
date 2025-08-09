@@ -18,11 +18,16 @@ export type Project = {
   mouthCloseFile?: File
   shots: Shot[]
   subtitles: { start: number; end: number; text: string }[]
+  fps?: number
+  width?: number
+  height?: number
 }
 type State = {
   project: Project
+  analyser?: AnalyserNode
   set: (patch: Partial<State['project']>) => void
   setShots: (shots: Shot[]) => void
+  setAnalyser: (a?: AnalyserNode) => void
 }
 export const useStore = create<State>((set) => ({
   project: {
@@ -31,8 +36,12 @@ export const useStore = create<State>((set) => ({
     tone: 'mix',
     beepWords: ['__BEEP__'],
     shots: [],
-    subtitles: []
+    subtitles: [],
+    fps: 30,
+    width: 1920,
+    height: 1080
   },
   set: (patch) => set(({ project }) => ({ project: { ...project, ...patch } })),
-  setShots: (shots) => set(({ project }) => ({ project: { ...project, shots } }))
+  setShots: (shots) => set(({ project }) => ({ project: { ...project, shots } })),
+  setAnalyser: (a) => set(() => ({ analyser: a }))
 }))

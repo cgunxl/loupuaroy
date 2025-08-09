@@ -1,24 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Application, Container, Text as PixiText, TextStyle } from 'pixi.js'
+import { Application, Container, Sprite, Text as PixiText, TextStyle } from 'pixi.js'
 import { gsap } from 'gsap'
 import { useStore } from '../store'
 import { FX } from '../core/effects'
 import { performanceMonitor } from '../core/performance'
+import { computeRMS } from '../core/lipsync'
 
 export function CanvasStage(){
   const ref = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string>('')
+  const { analyser } = useStore()
   const shots = useStore(s=>s.project.shots)
+  const project = useStore(s=>s.project)
 
   useEffect(()=>{
     if (!ref.current) return
     
-            const app = new Application()
-        app.init({ 
-          backgroundAlpha: 0, 
-          resizeTo: ref.current,
-          antialias: !performanceMonitor.shouldReduceEffects()
-        }).then(async ()=>{
+    const app = new Application()
+    app.init({ 
+      backgroundAlpha: 0, 
+      resizeTo: ref.current,
+      antialias: !performanceMonitor.shouldReduceEffects()
+    }).then(async ()=>{
       try {
         ref.current!.innerHTML = ''
         ref.current!.appendChild(app.canvas)
@@ -26,8 +29,56 @@ export function CanvasStage(){
         const stage = new Container()
         app.stage.addChild(stage)
 
+        // Mascot with mouth frames
+        const mascotLayer = new Container()
+        stage.addChild(mascotLayer)
+
+        const loadSpriteFromFile = async (f?: File) => {
+          if (!f) return undefined as unknown as Sprite | undefined
+          const url = URL.createObjectURL(f)
+          const sp = await Sprite.from({ source: url })
+          sp.anchor.set(0.5)
+          sp.x = app.screen.width * 0.5
+          sp.y = app.screen.height * 0.6
+          sp.scale.set( performanceMonitor.shouldReduceEffects() ? 0.6 : 0.8 )
+          return sp
+        }
+
+        const mouthOpen = await loadSpriteFromFile(project.mouthOpenFile)
+        const mouthClose = await loadSpriteFromFile(project.mouthCloseFile)
+        const mascotBase = await loadSpriteFromFile(project.mascotFile)
+
+        if (mascotBase) mascotLayer.addChild(mascotBase)
+        if (mouthClose) mascotLayer.addChild(mouthClose)
+        if (mouthOpen) { mouthOpen.visible = false; mascotLayer.addChild(mouthOpen) }
+
+        // Simple lip sync driven by analyser RMS
+        let rafId = 0
+        const loop = () => {
+          if (analyser && (mouthOpen || mouthClose)){
+            const rms = computeRMS(analyser)
+            const talking = rms > 0.06
+            if (mouthOpen) mouthOpen.visible = talking
+            if (mouthClose) mouthClose.visible = !talking
+            if (mascotBase) mascotBase.y = (app.screen.height * 0.6) + (talking ? -2 : 0)
+          }
+          rafId = requestAnimationFrame(loop)
+        }
+        loop()
+
         const textLayer = new Container()
         stage.addChild(textLayer)
+
+        // Subtitles at bottom
+        const sub = new PixiText('', new TextStyle({
+          fill:'#ffffff', fontFamily:'Inter', fontSize: 28,
+          stroke:'#000', strokeThickness: 4
+        }))
+        sub.anchor.set(0.5)
+        sub.x = app.screen.width/2
+        sub.y = app.screen.height*0.9
+        sub.alpha = 0.9
+        stage.addChild(sub)
 
         let t = 0
         const timeline = gsap.timeline({ defaults:{ ease:'power2.out' } })
@@ -62,9 +113,14 @@ export function CanvasStage(){
             }
           })
           timeline.to(txt, { alpha:0, duration:0.15 }, t + s.d - 0.15)
+
+          // Subtitle cue
+          timeline.call(()=>{ sub.text = s.text }, undefined, t)
           t += s.d
         })
         setError('')
+
+        return () => { cancelAnimationFrame(rafId) }
       } catch (err) {
         setError('เกิดข้อผิดพลาดในการแสดงผล: ' + (err as Error).message)
       }
@@ -75,7 +131,7 @@ export function CanvasStage(){
     return () => { 
       // Cleanup handled by React unmount 
     }
-  }, [shots])
+  }, [shots, analyser, project.mascotFile, project.mouthOpenFile, project.mouthCloseFile])
 
   return (
     <div>

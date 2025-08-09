@@ -19,7 +19,7 @@ export class AudioEngine {
     this.master.gain.value = 1.0
     this.beepGain.gain.value = 0.9
     this.musicGain.gain.value = 0.25
-    this.analyser.fftSize = 256
+    this.analyser.fftSize = 512
 
     this.musicGain.connect(this.master)
     this.beepGain.connect(this.master)
@@ -61,7 +61,7 @@ export class AudioEngine {
       u.pitch = 1.0
       const p = new Promise<void>(res=>{ u.onend = ()=> res() })
       synth.speak(u)
-      const approx = Math.max(0.8, txt.length / 12) // ประมาณเวลา
+      const approx = Math.max(0.8, txt.length / 12)
       time += approx
       await p
     }

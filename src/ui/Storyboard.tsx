@@ -9,8 +9,8 @@ export function Storyboard(){
       <div>
         {shots.map((s,i)=>(
           <div key={i} className="story-item card">
-            <div className="story-time">{s.t.toFixed(1)}s</div>
-            <div className="story-text"><b>{s.text}</b><br/><span className="small">{s.fx.join(', ')}</span></div>
+            <div className="story-time">{s.t.toFixed(1)}s → {(s.t+s.d).toFixed(1)}s</div>
+            <div className="story-text"><b>{s.text}</b><br/><span className="small">FX: {s.fx.join(', ')}</span></div>
           </div>
         ))}
       </div>

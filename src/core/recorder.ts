@@ -1,5 +1,5 @@
-export async function recordCanvasWithAudio(canvas: HTMLCanvasElement, audioStream: MediaStream, seconds: number): Promise<Blob> {
-  const stream = canvas.captureStream(30)
+export async function recordCanvasWithAudio(canvas: HTMLCanvasElement, audioStream: MediaStream, seconds: number, fps = 30): Promise<Blob> {
+  const stream = canvas.captureStream(fps)
   const out = new MediaStream()
   stream.getVideoTracks().forEach(t => out.addTrack(t))
   audioStream.getAudioTracks().forEach(t => out.addTrack(t))

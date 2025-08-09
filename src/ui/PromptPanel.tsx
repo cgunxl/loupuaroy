@@ -77,6 +77,16 @@ export function PromptPanel(){
     }
   }
 
+  function onChangeBeepWords(value: string){
+    const list = value.split(',').map(s=>s.trim()).filter(Boolean)
+    set({ beepWords: list })
+  }
+
+  function onChangeResolution(preset: string){
+    if (preset === '1080p') set({ width: 1920, height: 1080 })
+    else if (preset === '4k') set({ width: 3840, height: 2160 })
+  }
+
   return (
     <div>
       <h2>Jackboard Auto</h2>
@@ -107,6 +117,23 @@ export function PromptPanel(){
             <option value="mix">ฮาผสมสาระ</option>
             <option value="fun">ฮา</option>
             <option value="serious">จริงจัง</option>
+          </select>
+        </div>
+      </div>
+
+      <label>คำหยาบ (คั่นด้วย ,)</label>
+      <input type="text" value={project.beepWords.join(',')} onChange={e=>onChangeBeepWords(e.target.value)} />
+
+      <div className="row">
+        <div>
+          <label>FPS</label>
+          <input type="number" min={24} max={60} value={project.fps || 30} onChange={e=>set({ fps: Math.max(24, Math.min(60, +e.target.value)) })} />
+        </div>
+        <div>
+          <label>ความละเอียด</label>
+          <select onChange={e=>onChangeResolution(e.target.value)}>
+            <option value="1080p">1080p (1920x1080)</option>
+            <option value="4k">4K (3840x2160)</option>
           </select>
         </div>
       </div>
