@@ -22,6 +22,9 @@ export interface SoundEffect {
   tags: string[]
 }
 
+// Get base URL for GitHub Pages
+const BASE_URL = (import.meta as any).env?.BASE_URL || '/'
+
 export class MusicLibrary {
   private audioContext: AudioContext
   private musicTracks: Map<string, MusicTrack> = new Map()
@@ -38,7 +41,7 @@ export class MusicLibrary {
       mood: ['happy', 'positive', 'energetic'],
       bpm: 128,
       duration: 30,
-      url: '/assets/music/happy-vibes.mp3',
+      url: `${BASE_URL}assets/music/happy-vibes.mp3`,
       tags: ['tiktok', 'viral', 'dance']
     },
     {
@@ -48,7 +51,7 @@ export class MusicLibrary {
       mood: ['fun', 'party', 'summer'],
       bpm: 130,
       duration: 30,
-      url: '/assets/music/summer-party.mp3',
+      url: `${BASE_URL}assets/music/summer-party.mp3`,
       tags: ['beach', 'vacation', 'youth']
     },
     
@@ -60,7 +63,7 @@ export class MusicLibrary {
       mood: ['intense', 'suspense', 'powerful'],
       bpm: 100,
       duration: 30,
-      url: '/assets/music/epic-reveal.mp3',
+      url: `${BASE_URL}assets/music/epic-reveal.mp3`,
       tags: ['cinematic', 'trailer', 'news']
     },
     {
@@ -70,7 +73,7 @@ export class MusicLibrary {
       mood: ['urgent', 'serious', 'important'],
       bpm: 110,
       duration: 30,
-      url: '/assets/music/breaking-news.mp3',
+      url: `${BASE_URL}assets/music/breaking-news.mp3`,
       tags: ['news', 'announcement', 'alert']
     },
     
@@ -82,7 +85,7 @@ export class MusicLibrary {
       mood: ['relaxed', 'calm', 'peaceful'],
       bpm: 85,
       duration: 30,
-      url: '/assets/music/lofi-study.mp3',
+      url: `${BASE_URL}assets/music/lofi-study.mp3`,
       tags: ['study', 'relax', 'background']
     },
     {
@@ -92,7 +95,7 @@ export class MusicLibrary {
       mood: ['mellow', 'warm', 'nostalgic'],
       bpm: 90,
       duration: 30,
-      url: '/assets/music/sunset-vibes.mp3',
+      url: `${BASE_URL}assets/music/sunset-vibes.mp3`,
       tags: ['evening', 'romantic', 'soft']
     },
     
@@ -104,7 +107,7 @@ export class MusicLibrary {
       mood: ['powerful', 'motivating', 'intense'],
       bpm: 140,
       duration: 30,
-      url: '/assets/music/pump-it-up.mp3',
+      url: `${BASE_URL}assets/music/pump-it-up.mp3`,
       tags: ['workout', 'sports', 'action']
     },
     {
@@ -114,7 +117,7 @@ export class MusicLibrary {
       mood: ['fast', 'exciting', 'dynamic'],
       bpm: 145,
       duration: 30,
-      url: '/assets/music/electric-rush.mp3',
+      url: `${BASE_URL}assets/music/electric-rush.mp3`,
       tags: ['edm', 'dance', 'club']
     }
   ]
@@ -127,7 +130,7 @@ export class MusicLibrary {
       name: 'Fast Whoosh',
       category: 'whoosh',
       duration: 0.5,
-      url: '/assets/sfx/whoosh-fast.mp3',
+      url: `${BASE_URL}assets/sfx/whoosh-fast.mp3`,
       tags: ['transition', 'movement', 'quick']
     },
     {
@@ -135,7 +138,7 @@ export class MusicLibrary {
       name: 'Slow Whoosh',
       category: 'whoosh',
       duration: 1,
-      url: '/assets/sfx/whoosh-slow.mp3',
+      url: `${BASE_URL}assets/sfx/whoosh-slow.mp3`,
       tags: ['transition', 'smooth', 'elegant']
     },
     
@@ -145,7 +148,7 @@ export class MusicLibrary {
       name: 'Deep Impact',
       category: 'impact',
       duration: 0.8,
-      url: '/assets/sfx/impact-deep.mp3',
+      url: `${BASE_URL}assets/sfx/impact-deep.mp3`,
       tags: ['hit', 'powerful', 'bass']
     },
     {
@@ -153,7 +156,7 @@ export class MusicLibrary {
       name: 'Punch Hit',
       category: 'impact',
       duration: 0.3,
-      url: '/assets/sfx/punch-hit.mp3',
+      url: `${BASE_URL}assets/sfx/punch-hit.mp3`,
       tags: ['hit', 'sharp', 'quick']
     },
     
@@ -163,7 +166,7 @@ export class MusicLibrary {
       name: 'Success Ding',
       category: 'notification',
       duration: 0.5,
-      url: '/assets/sfx/success-ding.mp3',
+      url: `${BASE_URL}assets/sfx/success-ding.mp3`,
       tags: ['success', 'positive', 'achievement']
     },
     {
@@ -171,7 +174,7 @@ export class MusicLibrary {
       name: 'Error Buzz',
       category: 'notification',
       duration: 0.4,
-      url: '/assets/sfx/error-buzz.mp3',
+      url: `${BASE_URL}assets/sfx/error-buzz.mp3`,
       tags: ['error', 'warning', 'alert']
     },
     
@@ -181,7 +184,7 @@ export class MusicLibrary {
       name: 'Button Click',
       category: 'ui',
       duration: 0.1,
-      url: '/assets/sfx/button-click.mp3',
+      url: `${BASE_URL}assets/sfx/button-click.mp3`,
       tags: ['click', 'interface', 'button']
     },
     {
@@ -189,7 +192,7 @@ export class MusicLibrary {
       name: 'Type Sound',
       category: 'ui',
       duration: 0.05,
-      url: '/assets/sfx/type-sound.mp3',
+      url: `${BASE_URL}assets/sfx/type-sound.mp3`,
       tags: ['type', 'keyboard', 'text']
     }
   ]
@@ -262,7 +265,10 @@ export class MusicLibrary {
       return audioBuffer
     } catch (error) {
       console.error('Failed to load audio:', url, error)
-      throw error
+      // Return silent buffer as fallback for demo
+      const sampleRate = this.audioContext.sampleRate
+      const buffer = this.audioContext.createBuffer(2, sampleRate * 2, sampleRate)
+      return buffer
     }
   }
 

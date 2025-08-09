@@ -19,10 +19,10 @@ export class ProfessionalVoiceEngine {
   private audioContext: AudioContext
   private voiceConfig: VoiceConfig
   private apiKeys = {
-    elevenlabs: process.env.VITE_ELEVENLABS_API_KEY || '',
-    google: process.env.VITE_GOOGLE_TTS_API_KEY || '',
-    azure: process.env.VITE_AZURE_SPEECH_KEY || '',
-    aws: process.env.VITE_AWS_POLLY_KEY || ''
+    elevenlabs: (import.meta as any).env?.VITE_ELEVENLABS_API_KEY || '',
+    google: (import.meta as any).env?.VITE_GOOGLE_TTS_API_KEY || '',
+    azure: (import.meta as any).env?.VITE_AZURE_SPEECH_KEY || '',
+    aws: (import.meta as any).env?.VITE_AWS_POLLY_KEY || ''
   }
 
   // เสียงพูดคุณภาพสูงสำหรับภาษาไทย
@@ -279,7 +279,7 @@ export class ProfessionalVoiceEngine {
 
   // เลือกเสียงตามอารมณ์
   private selectVoiceByEmotion(provider: string, emotion?: string): string {
-    const voices = this.THAI_VOICES[provider]
+    const voices = (this.THAI_VOICES as any)[provider]
     const gender = this.voiceConfig.voiceId.includes('female') ? 'female' : 'male'
     const style = emotion === 'excited' ? 'energetic' : 
                   emotion === 'serious' ? 'professional' : 'friendly'

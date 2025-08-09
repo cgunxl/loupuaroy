@@ -6,7 +6,7 @@ export class AudioEngine {
   beepGain: GainNode
   musicGain: GainNode
   analyser: AnalyserNode
-  merger: MediaStreamDestination
+  merger: MediaStreamAudioDestinationNode
 
   constructor() {
     this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)()

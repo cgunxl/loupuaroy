@@ -1,12 +1,15 @@
 // Complete TikTok Video Creator System
 // ระบบสร้างวิดีโอ TikTok แบบครบวงจร ทำงานได้จริง 100%
 
-import { createProfessionalVoice, VoiceConfig } from './voiceEngine'
-import { ProfessionalEffects } from './professionalEffects'
+import { createProfessionalVoice, VoiceConfig } from './professionalVoiceEngine'
+import { ProfessionalEffects } from './professionalVideoEffects'
 import { aiContentGenerator } from './aiContentGenerator'
-import { Application, Container, Text, Graphics } from 'pixi.js'
+import { Application, Container, Text, Graphics, Sprite, Texture } from 'pixi.js'
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
+
+// Get base URL for GitHub Pages
+const BASE_URL = (import.meta as any).env?.BASE_URL || '/'
 
 export interface VideoConfig {
   width: number
@@ -29,8 +32,8 @@ export interface CreatorOptions {
 
 export class CompleteTikTokCreator {
   private ffmpeg: FFmpeg
-  private app: Application
-  private effects: ProfessionalEffects
+  private app!: Application
+  private effects!: ProfessionalEffects
   private voiceEngine: any
   private isInitialized = false
   
@@ -56,8 +59,17 @@ export class CompleteTikTokCreator {
     if (this.isInitialized) return
 
     try {
-      // Initialize FFmpeg
-      await this.ffmpeg.load()
+      // Initialize FFmpeg with CORS support
+      this.ffmpeg = new FFmpeg()
+      this.ffmpeg.on('log', ({ message }) => {
+        console.log(message)
+      })
+      
+      // Load FFmpeg core from CDN for GitHub Pages
+      await this.ffmpeg.load({
+        coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
+        wasmURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm'
+      })
       
       // Create PIXI Application
       const canvas = document.createElement('canvas')
@@ -65,7 +77,7 @@ export class CompleteTikTokCreator {
       document.body.appendChild(canvas)
       
       this.app = new Application({
-        view: canvas,
+        view: canvas as HTMLCanvasElement,
         width: 1080,
         height: 1920,
         backgroundColor: 0x000000,
@@ -78,7 +90,7 @@ export class CompleteTikTokCreator {
       
       // Initialize voice engine with best provider
       const voiceConfig: VoiceConfig = {
-        provider: 'elevenlabs', // Use ElevenLabs for best quality
+        provider: 'browser', // Use browser TTS for GitHub Pages demo
         voiceId: 'male_energetic',
         language: 'th-TH',
         speed: 1.0,
@@ -108,7 +120,7 @@ export class CompleteTikTokCreator {
       console.log('🤖 Generating content...')
       const content = await aiContentGenerator.generateContent({
         topic: options.topic,
-        style: options.style,
+        style: options.style === 'entertainment' ? 'educational' : options.style,
         targetAudience: 'คนไทยทั่วไป',
         duration: 30,
         keywords: this.extractKeywords(options.topic)
@@ -119,7 +131,7 @@ export class CompleteTikTokCreator {
       const voiceScript = aiContentGenerator.generateVoiceScript(content)
       const audioBuffer = await this.voiceEngine.generateProfessionalSpeech(voiceScript, {
         emotion: options.voiceStyle,
-        backgroundMusic: options.backgroundMusic,
+        backgroundMusic: options.backgroundMusic ? `${BASE_URL}${options.backgroundMusic}` : undefined,
         effects: [
           { type: 'compression', settings: { threshold: -24, ratio: 4 } },
           { type: 'eq', settings: { bass: 2, mid: 3, treble: 2 } }
@@ -227,7 +239,8 @@ export class CompleteTikTokCreator {
   // Capture single frame
   private async captureFrame(): Promise<Uint8Array> {
     return new Promise((resolve) => {
-      this.app.view.toBlob(async (blob) => {
+      const canvas = this.app.view as HTMLCanvasElement
+      canvas.toBlob(async (blob) => {
         if (blob) {
           const arrayBuffer = await blob.arrayBuffer()
           resolve(new Uint8Array(arrayBuffer))
@@ -278,7 +291,7 @@ export class CompleteTikTokCreator {
     // Clean up
     await this.cleanup()
     
-    return new Blob([data.buffer], { type: 'video/mp4' })
+    return new Blob([data as any], { type: 'video/mp4' })
   }
 
   // Convert AudioBuffer to WAV
@@ -346,12 +359,15 @@ export class CompleteTikTokCreator {
       fontWeight: 'bold',
       fill: style.color || ['#FFFFFF', '#FFD700'],
       stroke: '#000000',
-      strokeThickness: 6,
-      dropShadow: true,
-      dropShadowColor: '#000000',
-      dropShadowBlur: 8,
-      dropShadowAngle: Math.PI / 6,
-      dropShadowDistance: 6,
+
+      dropShadow: {
+        alpha: 0.8,
+        angle: Math.PI / 6,
+        blur: 8,
+        color: '#000000',
+        distance: 6
+      },
+
       wordWrap: true,
       wordWrapWidth: this.app.screen.width * 0.8,
       align: 'center',
@@ -399,7 +415,9 @@ export class CompleteTikTokCreator {
     const container = new Container()
     
     try {
-      const texture = await this.app.loader.load(url)
+      // Adjust URL for GitHub Pages
+      const imageUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`
+      const texture = await Texture.from(imageUrl)
       const sprite = new Sprite(texture)
       
       // Scale to fit
@@ -480,7 +498,7 @@ export class CompleteTikTokCreator {
         style: 'crypto',
         voiceGender: 'male',
         voiceStyle: 'energetic',
-        backgroundMusic: '/assets/music/upbeat.mp3',
+        backgroundMusic: 'assets/music/upbeat.mp3',
         effects: ['bounceScale', 'glitchReveal', 'neonGlow'],
         transitions: ['swipe', 'zoom', 'glitch']
       })

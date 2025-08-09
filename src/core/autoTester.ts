@@ -53,7 +53,7 @@ export class AutoTester {
     for (let i = 0; i < iterations; i++) {
       for (const prompt of testPrompts) {
         const startTime = performance.now()
-        const startMemory = performance.memory?.usedJSHeapSize || 0
+        const startMemory = (performance as any).memory?.usedJSHeapSize || 0
         
         try {
           const content = await aiContentGenerator.generateContent({
@@ -64,7 +64,7 @@ export class AutoTester {
           })
 
           const duration = performance.now() - startTime
-          const memoryUsed = (performance.memory?.usedJSHeapSize || 0) - startMemory
+          const memoryUsed = ((performance as any).memory?.usedJSHeapSize || 0) - startMemory
           
           // ตรวจสอบคุณภาพ content
           const passed = this.validateContent(content)

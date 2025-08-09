@@ -148,7 +148,7 @@ export function ProfessionalApp() {
       console.error('Video creation failed:', error)
       project.status = 'error'
       saveProjects(projects.map(p => p.id === project.id ? project : p))
-      showNotification('❌ เกิดข้อผิดพลาด: ' + error.message, 'error')
+      showNotification('❌ เกิดข้อผิดพลาด: ' + (error as Error).message, 'error')
     } finally {
       setIsProcessing(false)
       setProgress(0)
@@ -185,8 +185,8 @@ export function ProfessionalApp() {
         showNotification('✅ ดาวน์โหลดวิดีโอสำเร็จ!', 'success')
       }
     } catch (error) {
-      setDownloadStatus('❌ ดาวน์โหลดล้มเหลว: ' + error.message)
-      showNotification('❌ ' + error.message, 'error')
+      setDownloadStatus('❌ ดาวน์โหลดล้มเหลว: ' + (error as Error).message)
+      showNotification('❌ ' + (error as Error).message, 'error')
     }
   }
 
@@ -204,7 +204,7 @@ export function ProfessionalApp() {
         showNotification(`⚠️ ทดสอบผ่าน ${report.successRate.toFixed(1)}%`, 'warning')
       }
     } catch (error) {
-      setTestResults({ status: 'error', error: error.message })
+      setTestResults({ status: 'error', error: (error as Error).message })
       showNotification('❌ การทดสอบล้มเหลว', 'error')
     }
   }

@@ -7,7 +7,7 @@ import './styles/professional.css'
 // Register service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    const swUrl = `${import.meta.env.BASE_URL}sw.js`
+    const swUrl = `${(import.meta as any).env.BASE_URL}sw.js`
     navigator.serviceWorker.register(swUrl)
       .then((registration) => {
         console.log('SW registered: ', registration)

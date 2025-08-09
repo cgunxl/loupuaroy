@@ -36,7 +36,7 @@ export function CanvasStage(){
         const loadSpriteFromFile = async (f?: File) => {
           if (!f) return undefined as unknown as Sprite | undefined
           const url = URL.createObjectURL(f)
-          const sp = await Sprite.from({ source: url })
+          const sp = await Sprite.from(url)
           sp.anchor.set(0.5)
           sp.x = app.screen.width * 0.5
           sp.y = app.screen.height * 0.6
@@ -72,7 +72,7 @@ export function CanvasStage(){
         // Subtitles at bottom
         const sub = new PixiText('', new TextStyle({
           fill:'#ffffff', fontFamily:'Inter', fontSize: 28,
-          stroke:'#000', strokeThickness: 4
+          stroke:'#000'
         }))
         sub.anchor.set(0.5)
         sub.x = app.screen.width/2
@@ -86,7 +86,7 @@ export function CanvasStage(){
         shots.forEach((s)=>{
           const txt = new PixiText(s.text, new TextStyle({
             fill:'#e8f5ee', fontFamily:'Bebas Neue', fontSize: performanceMonitor.shouldReduceEffects() ? 32 : 40, align:'center',
-            stroke:'#00150c', strokeThickness: performanceMonitor.shouldReduceEffects() ? 2 : 4
+            stroke:'#00150c'
           }))
           txt.anchor.set(0.5)
           txt.x = app.screen.width/2

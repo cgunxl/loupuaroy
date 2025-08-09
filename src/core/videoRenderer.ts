@@ -16,10 +16,10 @@ export interface RenderOptions {
 export interface TextStyle {
   fontSize: number
   fontFamily: string
-  fill: string | string[]
+  fill: any
   stroke?: string
   strokeThickness?: number
-  dropShadow?: boolean
+  dropShadow?: any
   dropShadowColor?: string
   dropShadowBlur?: number
   dropShadowDistance?: number
@@ -57,10 +57,13 @@ export class VideoRenderer {
       fill: ['#FFFFFF', '#E0E0E0'],
       stroke: '#000000',
       strokeThickness: 4,
-      dropShadow: true,
-      dropShadowColor: '#000000',
-      dropShadowBlur: 4,
-      dropShadowDistance: 2,
+      dropShadow: {
+        alpha: 0.8,
+        angle: Math.PI / 6,
+        blur: 4,
+        color: '#000000',
+        distance: 2
+      },
       align: 'center',
       wordWrap: true,
       wordWrapWidth: this.app.screen.width * 0.8
@@ -94,7 +97,7 @@ export class VideoRenderer {
           break
         case 'shadow':
           filters.push(new DropShadowFilter({
-            rotation: 45,
+
             distance: 5,
             color: 0x000000,
             alpha: 0.5,
@@ -184,12 +187,23 @@ export class VideoRenderer {
     switch (type) {
       case 'gradient':
         const graphics = new Graphics()
-        const gradient = graphics.beginTextureFill({
-          texture: this.createGradientTexture(['#1a1a2e', '#16213e', '#0f3460'])
-        })
+        const colors = [0x1a1a2e, 0x16213e, 0x0f3460]
+        
+        // Create gradient manually
+        graphics.beginFill(colors[0])
         graphics.drawRect(0, 0, this.app.screen.width, this.app.screen.height)
         graphics.endFill()
         bg.addChild(graphics)
+        
+        // Add gradient overlay
+        for (let i = 1; i < colors.length; i++) {
+          const overlay = new Graphics()
+          overlay.beginFill(colors[i])
+          overlay.drawRect(0, 0, this.app.screen.width, this.app.screen.height)
+          overlay.endFill()
+          overlay.alpha = 0.5 / i
+          bg.addChild(overlay)
+        }
         break
         
       case 'particles':

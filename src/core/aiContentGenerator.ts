@@ -28,7 +28,7 @@ export interface ContentPrompt {
 
 export class AIContentGenerator {
   // Templates จากการวิเคราะห์ช่อง TikTok ตัวอย่าง
-  private readonly CONTENT_TEMPLATES = {
+  private readonly CONTENT_TEMPLATES: Record<string, any> = {
     finance: {
       hooks: [
         "🚨 ข่าวด่วน! {topic} ที่คุณต้องรู้!",
@@ -232,7 +232,7 @@ export class AIContentGenerator {
   }
 
   private getTrendingHashtags(style: string): string[] {
-    const trending = {
+    const trending: Record<string, string[]> = {
       finance: ['#หุ้น', '#SET', '#ตลาดหุ้น'],
       crypto: ['#Bitcoin', '#Ethereum', '#DeFi'],
       news: ['#ข่าวด่วน', '#เศรษฐกิจ', '#การเมือง'],
