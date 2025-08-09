@@ -3,6 +3,9 @@ import { useStore } from '../store'
 import { getFreshNews } from '../core/rss'
 import { buildFromNews } from '../core/scriptEngine'
 import { ProjectStorage } from '../core/storage'
+import { aiContentGenerator, ContentPrompt } from '../core/aiContentGenerator'
+import { tiktokDownloader } from '../core/tiktokDownloader'
+import { autoTester } from '../core/autoTester'
 
 export function PromptPanel(){
   const { project, set, setShots } = useStore()
@@ -10,6 +13,11 @@ export function PromptPanel(){
   const [error, setError] = useState<string>('')
   const [savedProjects, setSavedProjects] = useState<{ key: string; name: string; date: Date }[]>([])
   const [showProjects, setShowProjects] = useState(false)
+  const [contentStyle, setContentStyle] = useState<'finance' | 'crypto' | 'news' | 'educational'>('finance')
+  const [tiktokUrl, setTiktokUrl] = useState('')
+  const [downloadStatus, setDownloadStatus] = useState('')
+  const [testStatus, setTestStatus] = useState('')
+  const [isTestRunning, setIsTestRunning] = useState(false)
 
   useEffect(() => {
     loadSavedProjects()
@@ -24,6 +32,53 @@ export function PromptPanel(){
     }
   }
 
+  // ฟังก์ชันใหม่: สร้างเนื้อหาด้วย AI
+  async function generateWithAI() {
+    setLoading(true)
+    setError('')
+    try {
+      // สร้าง prompt สำหรับ AI
+      const contentPrompt: ContentPrompt = {
+        topic: project.prompt || 'การลงทุนในตลาดหุ้นไทย',
+        style: contentStyle,
+        targetAudience: 'คนไทยที่สนใจการลงทุน',
+        duration: project.duration,
+        keywords: project.beepWords.filter(w => w !== '__BEEP__')
+      }
+
+      // สร้างเนื้อหาด้วย AI
+      const content = await aiContentGenerator.generateContent(contentPrompt)
+      
+      // แปลงเป็น shots และ subtitles
+      const shots = content.visualElements.map((element, index) => ({
+        t: element.timing.start,
+        d: element.timing.end - element.timing.start,
+        text: element.content,
+        fx: element.type === 'transition' ? ['transition'] : [],
+        camera: [],
+        bg: element.style.background || undefined
+      }))
+
+      const subtitles = [content.hook, ...content.mainContent, content.callToAction].map((text, index) => {
+        const timePerSection = project.duration / (content.mainContent.length + 2)
+        return {
+          start: index * timePerSection,
+          end: (index + 1) * timePerSection,
+          text
+        }
+      })
+
+      set({ subtitles })
+      setShots(shots)
+      setError('✅ สร้างเนื้อหาสำเร็จ!')
+    } catch (err) {
+      setError('❌ เกิดข้อผิดพลาด: ' + (err as Error).message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ฟังก์ชันเดิมที่ปรับปรุง
   async function generate(){
     setLoading(true)
     setError('')
@@ -40,6 +95,41 @@ export function PromptPanel(){
       setError('เกิดข้อผิดพลาด: ' + (err as Error).message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // ฟังก์ชันใหม่: ดาวน์โหลดวิดีโอ TikTok
+  async function downloadTikTok() {
+    if (!tiktokUrl) {
+      setDownloadStatus('❌ กรุณาใส่ URL ของวิดีโอ TikTok')
+      return
+    }
+
+    setDownloadStatus('⏳ กำลังดาวน์โหลด...')
+    try {
+      const videoInfo = await tiktokDownloader.getVideoInfo(tiktokUrl)
+      if (!videoInfo) {
+        setDownloadStatus('❌ ไม่สามารถดึงข้อมูลวิดีโอได้')
+        return
+      }
+
+      setDownloadStatus(`📹 พบวิดีโอ: ${videoInfo.title} โดย ${videoInfo.author}`)
+      
+      const blob = await tiktokDownloader.downloadVideo(videoInfo)
+      if (blob) {
+        // สร้าง download link
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `tiktok_${videoInfo.id}.mp4`
+        a.click()
+        URL.revokeObjectURL(url)
+        setDownloadStatus('✅ ดาวน์โหลดสำเร็จ!')
+      } else {
+        setDownloadStatus('⚠️ กำลังดาวน์โหลดในแท็บใหม่...')
+      }
+    } catch (err) {
+      setDownloadStatus('❌ ดาวน์โหลดล้มเหลว: ' + (err as Error).message)
     }
   }
 
@@ -92,50 +182,108 @@ export function PromptPanel(){
       <h2>Jackboard Auto</h2>
       <div className="badge">ฟรี • ไม่ต้องสมัคร • ทำในเบราว์เซอร์</div>
 
-      <label>พรอมต์ (หัวข้อ/โทน)</label>
-      <textarea 
-        rows={4} 
-        placeholder="อัปเดต Bitcoin โทนฮา 45 วิ" 
-        value={project.prompt} 
-        onChange={e=>set({prompt:e.target.value})}
-      />
-
-      <div className="row">
-        <div>
-          <label>ความยาว (วินาที)</label>
-          <input 
-            type="number" 
-            min={30} 
-            max={60} 
-            value={project.duration} 
-            onChange={e=>set({duration:+e.target.value})}
-          />
-        </div>
-        <div>
-          <label>โทน</label>
-          <select value={project.tone} onChange={e=>set({tone:e.target.value as any})}>
-            <option value="mix">ฮาผสมสาระ</option>
-            <option value="fun">ฮา</option>
-            <option value="serious">จริงจัง</option>
-          </select>
-        </div>
+      <h3>สร้างเนื้อหา TikTok</h3>
+      
+      {/* เลือกสไตล์เนื้อหา */}
+      <div className="card">
+        <label>สไตล์เนื้อหา:</label>
+        <select 
+          value={contentStyle} 
+          onChange={(e) => setContentStyle(e.target.value as any)}
+          className="input"
+        >
+          <option value="finance">💰 การเงิน</option>
+          <option value="crypto">🪙 คริปโต</option>
+          <option value="news">📰 ข่าวสาร</option>
+          <option value="educational">📚 ความรู้</option>
+        </select>
       </div>
 
-      <label>คำหยาบ (คั่นด้วย ,)</label>
-      <input type="text" value={project.beepWords.join(',')} onChange={e=>onChangeBeepWords(e.target.value)} />
+      {/* Input หัวข้อ */}
+      <textarea 
+        className="input" 
+        placeholder="ใส่หัวข้อหรือ prompt ที่ต้องการ เช่น 'วิธีลงทุนหุ้นสำหรับมือใหม่' หรือ 'Bitcoin จะขึ้นไปถึง 100,000 ดอลลาร์ไหม'"
+        value={project.prompt}
+        onChange={(e) => set({ prompt: e.target.value })}
+        rows={3}
+      />
 
-      <div className="row">
-        <div>
-          <label>FPS</label>
-          <input type="number" min={24} max={60} value={project.fps || 30} onChange={e=>set({ fps: Math.max(24, Math.min(60, +e.target.value)) })} />
+      {/* ปุ่มสร้างเนื้อหา */}
+      <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+        <button 
+          onClick={generateWithAI} 
+          disabled={loading}
+          style={{ flex: 1, background: 'var(--primary)' }}
+        >
+          {loading ? 'กำลังสร้าง...' : '🤖 สร้างด้วย AI'}
+        </button>
+        <button 
+          onClick={generate} 
+          disabled={loading}
+          style={{ flex: 1 }}
+        >
+          {loading ? 'กำลังสร้าง...' : '📰 สร้างจากข่าว'}
+        </button>
+      </div>
+
+      {/* แสดง error/success */}
+      {error && (
+        <div className="card small" style={{ 
+          marginTop: '10px',
+          color: error.startsWith('✅') ? 'var(--success)' : 'var(--danger)' 
+        }}>
+          {error}
         </div>
-        <div>
-          <label>ความละเอียด</label>
-          <select onChange={e=>onChangeResolution(e.target.value)}>
-            <option value="1080p">1080p (1920x1080)</option>
-            <option value="4k">4K (3840x2160)</option>
-          </select>
-        </div>
+      )}
+
+      {/* ส่วนดาวน์โหลด TikTok */}
+      <div className="card" style={{ marginTop: '20px' }}>
+        <h4>📥 ดาวน์โหลดวิดีโอ TikTok</h4>
+        <input
+          type="text"
+          className="input"
+          placeholder="ใส่ URL ของวิดีโอ TikTok ที่ต้องการดาวน์โหลด"
+          value={tiktokUrl}
+          onChange={(e) => setTiktokUrl(e.target.value)}
+        />
+        <button 
+          onClick={downloadTikTok}
+          style={{ marginTop: '10px', width: '100%' }}
+        >
+          ดาวน์โหลดวิดีโอ
+        </button>
+        {downloadStatus && (
+          <div className="small" style={{ 
+            marginTop: '10px',
+            color: downloadStatus.includes('✅') ? 'var(--success)' : 
+                   downloadStatus.includes('❌') ? 'var(--danger)' : 'var(--text)'
+          }}>
+            {downloadStatus}
+          </div>
+        )}
+      </div>
+
+      {/* ตั้งค่าเพิ่มเติม */}
+      <div className="card" style={{ marginTop: '20px' }}>
+        <h4>⚙️ ตั้งค่า</h4>
+        <label>ความยาววิดีโอ (วินาที):</label>
+        <input 
+          type="number" 
+          className="input" 
+          value={project.duration} 
+          onChange={(e) => set({ duration: parseInt(e.target.value) || 30 })}
+          min={15}
+          max={60}
+        />
+        
+        <label style={{ marginTop: '10px' }}>คำที่ต้องการ beep:</label>
+        <input 
+          type="text" 
+          className="input" 
+          placeholder="คั่นด้วยเครื่องหมายจุลภาค"
+          value={project.beepWords.join(', ')}
+          onChange={(e) => set({ beepWords: e.target.value.split(',').map(w => w.trim()).filter(Boolean) })}
+        />
       </div>
 
       <label>อัปโหลดมาสคอส (PNG โปร่งใส)</label>
@@ -154,37 +302,29 @@ export function PromptPanel(){
       {error && <div className="card small" style={{color: error.includes('สำเร็จ') ? 'var(--accent)' : 'var(--danger)', marginTop: 8}}>{error}</div>}
 
       <div className="row" style={{marginTop: 12}}>
-        <button onClick={generate} disabled={loading}>
-          {loading? 'กำลังสร้าง...' : 'สร้าง Storyboard'}
-        </button>
         <button onClick={saveProject} disabled={project.shots.length === 0} style={{background: 'linear-gradient(180deg, #2bd9a9, #21c17a)'}}>
           บันทึก
         </button>
       </div>
 
-      <button onClick={() => setShowProjects(!showProjects)} style={{marginTop: 8, background: 'rgba(255,255,255,0.1)'}}>
-        {showProjects ? 'ซ่อน' : 'แสดง'} โปรเจกต์ที่บันทึก ({savedProjects.length})
-      </button>
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={() => setShowProjects(!showProjects)} style={{ marginLeft: '10px' }}>
+          📂 {showProjects ? 'ซ่อน' : 'แสดง'}โปรเจคที่บันทึก
+        </button>
+      </div>
 
-      {showProjects && (
-        <div className="card" style={{marginTop: 8}}>
-          <h4>โปรเจกต์ที่บันทึก</h4>
-          {savedProjects.length === 0 ? (
-            <div className="small">ยังไม่มีโปรเจกต์ที่บันทึก</div>
-          ) : (
-            savedProjects.map(p => (
-              <div key={p.key} className="story-item">
-                <div style={{flex: 1}}>
-                  <div className="story-text">{p.name}</div>
-                  <div className="small">{p.date.toLocaleDateString('th-TH')}</div>
-                </div>
-                <div className="row" style={{gap: 4}}>
-                  <button onClick={() => loadProject(p.key)} style={{padding: '4px 8px', fontSize: '12px'}}>โหลด</button>
-                  <button onClick={() => deleteProject(p.key)} style={{padding: '4px 8px', fontSize: '12px', background: 'var(--danger)'}}>ลบ</button>
-                </div>
+      {showProjects && savedProjects.length > 0 && (
+        <div className="card" style={{ marginTop: '10px' }}>
+          <h4>โปรเจคที่บันทึก:</h4>
+          {savedProjects.map((proj) => (
+            <div key={proj.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span className="small">{proj.name}</span>
+              <div>
+                <button onClick={() => loadProject(proj.key)} className="small">โหลด</button>
+                <button onClick={() => deleteProject(proj.key)} className="small" style={{ marginLeft: '5px', color: 'var(--danger)' }}>ลบ</button>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
       )}
 
