@@ -1,0 +1,8 @@
+{
+  "bgm": [
+    { "id": "calm_loop", "path": "/audio/calm_loop.mp3", "license": "CC0" }
+  ],
+  "sfx": [
+    { "id": "beep", "path": "__synthetic__", "license": "CC0" }
+  ]
+}

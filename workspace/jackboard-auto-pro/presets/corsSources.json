@@ -1,0 +1,6 @@
+[
+  "https://news.google.com/rss/search?q={q}&hl=th&gl=TH&ceid=TH:th",
+  "https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml",
+  "https://www.cointelegraph.com/rss",
+  "https://www.reddit.com/r/CryptoCurrency/hot.json"
+]
