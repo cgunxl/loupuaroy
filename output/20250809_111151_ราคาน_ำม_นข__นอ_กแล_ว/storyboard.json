@@ -1,0 +1,58 @@
+[
+  {
+    "type": "hook",
+    "narration": "โอ้โห! ราคาน้ำมันขึ้นอีกแล้ว",
+    "image_prompt": "funny cartoon illustration of ราคาน้ำมันขึ้นอีกแล้ว in Thai pop-art style, vibrant colors, clean background",
+    "suggested_motion": "zoom-in slow",
+    "on_screen_text": "โอ้โห! ราคาน้ำมันขึ้นอีกแล้ว"
+  },
+  {
+    "type": "context",
+    "narration": "วันนี้มีข่าวว่า วันนี้ราคาน้ำมันปรับขึ้น 50 สตางค์ต่อลิตร",
+    "image_prompt": "news reporter cartoon character explaining ราคาน้ำมันขึ้นอีกแล้ว, bold outlines, 2D animation style",
+    "suggested_motion": "pan-left slow",
+    "on_screen_text": "วันนี้มีข่าวว่า วันนี้ราคาน้ำมันปรับขึ้น…"
+  },
+  {
+    "type": "twist",
+    "narration": "ถ้าจะให้เปรียบ ราคาน้ำมันขึ้นอีกแล้ว ก็เหมือนชาบูเติมน้ำซุปไม่หยุด แต่ใจเรายังบางอยู่นะ",
+    "image_prompt": "humorous infographic about ราคาน้ำมันขึ้นอีกแล้ว, simple icons, minimal, high contrast",
+    "suggested_motion": "zoom-in slow",
+    "on_screen_text": "ถ้าจะให้เปรียบ ราคาน้ำมันขึ้นอีกแล้ว ก็เ…"
+  },
+  {
+    "type": "beat",
+    "narration": "จริงดิ",
+    "image_prompt": "cartoon style breaking news scene about ราคาน้ำมันขึ้นอีกแล้ว, dynamic composition",
+    "suggested_motion": "pan-left slow",
+    "on_screen_text": "จริงดิ"
+  },
+  {
+    "type": "beat",
+    "narration": "เดี๋ยวนะ",
+    "image_prompt": "funny cartoon illustration of ราคาน้ำมันขึ้นอีกแล้ว in Thai pop-art style, vibrant colors, clean background",
+    "suggested_motion": "pan-left slow",
+    "on_screen_text": "เดี๋ยวนะ"
+  },
+  {
+    "type": "beat",
+    "narration": "เอ็นดูอะ",
+    "image_prompt": "news reporter cartoon character explaining ราคาน้ำมันขึ้นอีกแล้ว, bold outlines, 2D animation style",
+    "suggested_motion": "pan-left slow",
+    "on_screen_text": "เอ็นดูอะ"
+  },
+  {
+    "type": "beat",
+    "narration": "ขำแห้งเลย",
+    "image_prompt": "humorous infographic about ราคาน้ำมันขึ้นอีกแล้ว, simple icons, minimal, high contrast",
+    "suggested_motion": "pan-left slow",
+    "on_screen_text": "ขำแห้งเลย"
+  },
+  {
+    "type": "cta",
+    "narration": "คอมเมนต์มาบอกว่าคิดยังไงกับเรื่องนี้! กดไลก์ กดแชร์ แล้วติดตามด้วยนะ",
+    "image_prompt": "cartoon style breaking news scene about ราคาน้ำมันขึ้นอีกแล้ว, dynamic composition",
+    "suggested_motion": "pan-left slow",
+    "on_screen_text": "คอมเมนต์มาบอกว่าคิดยังไงกับเรื่องนี้! กด…"
+  }
+]

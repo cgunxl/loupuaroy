@@ -1,0 +1,47 @@
+# คอนฟิกหลักสำหรับเวิร์กโฟลว์
+locale: th_TH
+region: TH
+timezone: Asia/Bangkok
+
+# ฟีดข่าวภาษาไทย (ปรับเพิ่มได้)
+rss_feeds:
+  - name: Google News TH (ทั่วไป)
+    url: https://news.google.com/rss?hl=th&gl=TH&ceid=TH:th
+  - name: Google News TH (เทคโนโลยี)
+    url: https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=th&gl=TH&ceid=TH:th
+  - name: Google News TH (โลก)
+    url: https://news.google.com/rss/headlines/section/topic/WORLD?hl=th&gl=TH&ceid=TH:th
+
+# คำที่สนใจ (ใช้กรอง/จัดลำดับเบื้องต้น)
+keywords:
+  - น้ำมัน
+  - ค่าไฟ
+  - AI
+  - เทคโนโลยี
+  - รถไฟฟ้า
+  - สภาพอากาศ
+  - ราคาทอง
+  - อาหาร
+  - บันเทิง
+
+# ตัวเลือกการสร้างสคริปต์
+script:
+  default_tone: witty   # witty|rude
+  default_seconds: 45   # 30-60
+  rude_hook_words:
+    - เฮ้ย
+    - อะไรวะ
+    - บ้าไปแล้ว
+  witty_hook_words:
+    - โอ้โห
+    - จริงดิ
+    - เดี๋ยวนะ
+
+# แฮชแท็กฐาน
+hashtags_base:
+  - ข่าวฮา
+  - ข่าวไวรัล
+  - ข่าววันนี้
+  - fyp
+  - foryou
+  - viral
