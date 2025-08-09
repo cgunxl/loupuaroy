@@ -1,0 +1,6 @@
+# Notes — Hook 3 วิด้วย AI
+
+- Owner: …
+- Angle/Beats: …
+- Assets Needed: ภาพ/เพลง/SFX/กราฟิก
+- Status: Ideation
