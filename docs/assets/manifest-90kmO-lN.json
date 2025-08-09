@@ -1,0 +1,21 @@
+{
+  "name": "Jackboard Auto",
+  "short_name": "Jackboard",
+  "description": "ระบบเว็บสร้างวิดีโอสั้น 30–60 วิ สไตล์ Jackboard Story",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0f0c",
+  "theme_color": "#21c17a",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

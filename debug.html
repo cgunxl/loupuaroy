@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug - Jackboard Auto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="./docs/assets/index-BKkIut0w.js"></script>
+    <link rel="stylesheet" crossorigin href="./docs/assets/index-DjouvreI.css">
+    <style>
+      #debug {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 12px;
+        max-width: 300px;
+        z-index: 1000;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="debug">
+      <div>Loading...</div>
+      <div id="errors"></div>
+    </div>
+    
+    <script>
+      // Debug script
+      const debug = document.getElementById('debug');
+      const errors = document.getElementById('errors');
+      
+      // Track loading state
+      let loading = true;
+      
+      // Error handling
+      window.addEventListener('error', function(e) {
+        console.error('Global error:', e.error);
+        errors.innerHTML += '<div style="color: red;">Error: ' + e.error.message + '</div>';
+        loading = false;
+        debug.querySelector('div').textContent = 'Error occurred';
+      });
+      
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason);
+        errors.innerHTML += '<div style="color: orange;">Promise Error: ' + e.reason + '</div>';
+        loading = false;
+        debug.querySelector('div').textContent = 'Promise error occurred';
+      });
+      
+      // Check if React loaded
+      setTimeout(() => {
+        if (loading) {
+          const root = document.getElementById('root');
+          if (root && root.children.length > 0) {
+            debug.querySelector('div').textContent = 'App loaded successfully!';
+            loading = false;
+          } else {
+            debug.querySelector('div').textContent = 'App not loaded';
+            errors.innerHTML += '<div style="color: yellow;">No content in root element</div>';
+          }
+        }
+      }, 3000);
+      
+      // Check for console errors
+      const originalConsoleError = console.error;
+      console.error = function(...args) {
+        originalConsoleError.apply(console, args);
+        errors.innerHTML += '<div style="color: red;">Console: ' + args.join(' ') + '</div>';
+      };
+    </script>
+  </body>
+</html>
