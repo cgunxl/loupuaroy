@@ -1,8 +1,8 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './ui/App'
+import { ProfessionalApp } from './ui/ProfessionalApp'
 import { ErrorBoundary } from './ui/ErrorBoundary'
-import './styles/theme.css'
+import './styles/professional.css'
 
 // Register service worker
 if ('serviceWorker' in navigator) {
@@ -20,6 +20,6 @@ if ('serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary>
-    <App />
+    <ProfessionalApp />
   </ErrorBoundary>
 )
