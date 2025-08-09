@@ -5,6 +5,12 @@ export default defineConfig({
   base: '/loupuaroy/',
   plugins: [react()],
   build: {
-    outDir: 'docs'
+    outDir: 'docs',
+    assetsDir: 'assets',
+    rollupOptions: {
+      input: {
+        main: 'index.html'
+      }
+    }
   }
 })
